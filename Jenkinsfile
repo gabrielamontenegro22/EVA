@@ -1,37 +1,36 @@
 pipeline {
-    agent any  // Ejecutar en cualquier nodo disponible de Jenkins
+    agent any
 
     stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Instalar Dependencias') {
+            steps {
+                script {
+                    // Instalación de tkinter
+                    sh 'sudo apt-get update'
+                    sh 'sudo apt-get install -y python3-tk'
+                }
+            }
+        }
+
         stage('Ejecutar Pruebas') {
             steps {
                 script {
                     echo 'Ejecutando pruebas...'
-                    // Ejecutar las pruebas con unittest usando xmlrunner y generar los resultados en formato XML
-                    sh 'python -m unittest test_contrato.py'  // Esto debería generar result.xml
+                    sh 'python3 -m unittest test_contrato.py'
                 }
-         }
+            }
         }
 
         stage('Resultados') {
             steps {
-                script {
-                    echo 'Generando resultados...'
-                    // Archivar el archivo result.xml como un artefacto para poder visualizarlo
-                    archiveArtifacts artifacts: 'result.xml', allowEmptyArchive: true
-                }
+                echo 'Mostrando resultados...'
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline ejecutado con éxito.'
-        }
-        success {
-            echo 'Las pruebas fueron exitosas.'
-        }
-        failure {
-            echo 'Hubo un error en el pipeline.'
         }
     }
 }
